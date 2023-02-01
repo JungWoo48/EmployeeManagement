@@ -10,6 +10,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.List;
 
+import edu.kh.emp.model.dao.EmployeeDAO;
 //import edu.kh.emp.model.dao.EmployeeDAO;
 import edu.kh.emp.model.vo.Employee;
 
@@ -21,7 +22,7 @@ public class EmployeeView {
 
 	
 	// DAO 객체 생성
-	//private EmployeeDAO dao = new EmployeeDAO();
+	private EmployeeDAO dao = new EmployeeDAO();
 	
 	
 	
@@ -102,66 +103,12 @@ public class EmployeeView {
 	 * 전체 사원 정보 조회
 	 */
 	public void selectAll() {
-		Connection conn = null;
+		System.out.println("<전체사원정보 조회>");
 		
-		Statement stmt = null;
+		//DAO.selectALL 호출하기
+		List<Employee> empList = dao.selectAll();
 		
-		ResultSet rs = null;
-		
-		try {
-			
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			
-			String url = "jdbc:oracle:thin:@localhost:1521:XE";
-			String user = "kh";
-			String pw = "kh1234";
-			
-			conn = DriverManager.getConnection(url, user, pw);
-			
-			String sql = "SELECT EMP_ID, EMP_NAME, EMP_NO, PHONE, DEPT_CODE, JOB_CODE, SAL_LEVEL, SALARY, BONUS, MANAGER_ID, HIRE_DATE, ENT_DATE, ENT_YN"
-					+ " FROM EMPLOYEE";
-			
-			stmt = conn.createStatement();
-			
-			rs = stmt.executeQuery(sql);
-			
-			while(rs.next()) {
-				
-				String empId = rs.getString("EMP_ID");
-				String empName= rs.getString("EMP_NAME");
-				String empNo = rs.getString("EMP_NO");
-				String phone = rs.getString("PHONE");
-				String deptcode = rs.getString("DEPT_CODE");
-				String jobcode = rs.getString("JOB_CODE");
-				String salLevel = rs.getString("SAL_LEVEL");
-				int salary = rs.getInt("SALARY");
-				int bonus = rs.getInt("BONUS");
-				String managerId = rs.getString("MANAGER_ID");
-				String hiredate = rs.getString("HIRE_DATE");
-				String entdate = rs.getString("ENT_DATE");
-				String entyn = rs.getString("ENT_YN");
-				
-				System.out.printf("사번 : %s / 이름 : %s / 주민번호 : %s / 전화번호 : %s / 부서코드 : %s / 직급 : %s / 급여단계 : %s /"
-						+ " 급여 : %d / 보너스 : %d / 사수번호 : %s / 입사일 : %s / 퇴사일 : %s / 퇴직여부 : %s\n",
-						empId, empName, empNo, phone, deptcode, jobcode, salLevel, salary, bonus, managerId, hiredate, entdate, entyn.toString() );
-			}
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-			
-		}finally {
-		
-			try {
-				if(rs !=null) rs.close();
-				if(stmt !=null) stmt.close();
-				if(conn !=null) conn.close();
-				
-			} catch(SQLException e) {
-				e.printStackTrace();
-			}
-		
-		}
-		
+		printAll(empList);
 		
 	}
 	
@@ -169,6 +116,25 @@ public class EmployeeView {
 	 * @param empList
 	 */
 	public void printAll(List<Employee> empList) {
+		
+		if(empList.isEmpty()) {
+			System.out.println("조회된 정보가 없음");
+			
+		} else {
+			System.out.println("사번 |  이름  |  주민번호  | 이메일 | 전화번호 | 부서 | 직책 | 급여 ");
+			System.out.println("============================================================");
+			
+			for(Employee emp : empList) {
+				System.out.printf("  %2d | %4s | %s | %20s | %s | %s | %s | %d\n",
+						emp.getEmpId(), emp.getEmpName(), emp.getEmpNo(), emp.getEmail(), emp.getPhone(),
+						emp.getDepartmentTitle(), emp.getJobName(), emp.getSalary());
+						
+	
+			}
+			
+		}
+		
+		
 		return;
 	}
 	
@@ -177,67 +143,14 @@ public class EmployeeView {
 	 * 사번이 일치하는 사원 정보 조회
 	 */
 	public void selectEmpId() {
-		Connection conn = null;
+		System.out.println("<사번이 일치하는 사원 조회>");
 		
-		Statement stmt = null;
+		System.out.println("번호 입력 : ");
+		String empId = sc.next();
 		
-		ResultSet rs = null;
+		Employee emp = dao.selectEmpNo(empId);
 		
-		try {
-			
-			System.out.print("사번 입력 : ");
-			String inputempId = sc.next();
-			
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			
-			String url = "jdbc:oracle:thin:@localhost:1521:XE";
-			String user = "kh";
-			String pw = "kh1234";
-			
-			conn = DriverManager.getConnection(url, user, pw);
-			
-			String sql = "SELECT EMP_ID, EMP_NAME, EMP_NO, PHONE, DEPT_CODE, JOB_CODE, SAL_LEVEL, SALARY, BONUS, MANAGER_ID, HIRE_DATE, ENT_DATE, ENT_YN"
-					+ " FROM EMPLOYEE"
-					+ " WHERE EMP_ID = '" + inputempId + "'";
-			
-			stmt = conn.createStatement();
-			
-			rs = stmt.executeQuery(sql);
-			
-			while(rs.next()) {
-				
-				String empId = rs.getString("EMP_ID");
-				String empName= rs.getString("EMP_NAME");
-				String empNo = rs.getString("EMP_NO");
-				String phone = rs.getString("PHONE");
-				String deptcode = rs.getString("DEPT_CODE");
-				String jobcode = rs.getString("JOB_CODE");
-				String salLevel = rs.getString("SAL_LEVEL");
-				int salary = rs.getInt("SALARY");
-				int bonus = rs.getInt("BONUS");
-				String managerId = rs.getString("MANAGER_ID");
-				String hiredate = rs.getString("HIRE_DATE");
-				String entdate = rs.getString("ENT_DATE");
-				String entyn = rs.getString("ENT_YN");
-				
-				System.out.printf("사번 : %s / 이름 : %s / 주민번호 : %s / 전화번호 : %s / 부서코드 : %s / 직급 : %s / 급여단계 : %s /"
-						+ " 급여 : %d / 보너스 : %d / 사수번호 : %s / 입사일 : %s / 퇴사일 : %s / 퇴직여부 : %s\n",
-						empId, empName, empNo, phone, deptcode, jobcode, salLevel, salary, bonus, managerId, hiredate, entdate, entyn.toString() );
-			
-			}
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-			
-		} finally {
-			try {
-				if(rs !=null) rs.close();
-				if(stmt !=null) stmt.close();
-				if(conn !=null) conn.close();
-			} catch(SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		printOne(emp);
 		
 	}
 	
@@ -246,7 +159,11 @@ public class EmployeeView {
 	 * @return empId
 	 */
 	public int inputEmpId() {
-		return 0;
+		System.out.println("사번 입력");
+		int empId = sc.nextInt();
+		sc.nextLine(); // 버퍼에 남은 개행문자 제거
+		return empId;
+		
 	}
 	
 	
@@ -254,6 +171,18 @@ public class EmployeeView {
 	 * @param emp
 	 */
 	public void printOne(Employee emp) {
+		if(emp == null) {
+			System.out.println("조회된 사원 정보가 없습니다.");
+			
+		} else {
+			System.out.println("사번 |   이름  | 주민 등록 번호 |        이메일        |   전화 번호   | 부서 | 직책 | 급여" );
+			System.out.println("------------------------------------------------------------------------------------------------");
+			
+			System.out.printf(" %2d  | %4s | %s | %20s | %s | %s | %s | %d\n",
+					emp.getEmpId(), emp.getEmpName(), emp.getEmpNo(), emp.getEmail(), 
+					emp.getPhone(), emp.getDepartmentTitle(), emp.getJobName(), emp.getSalary());
+		}
+		
 		
 	}
 	
@@ -262,68 +191,15 @@ public class EmployeeView {
 	 * 주민등록번호가 일치하는 사원 정보 조회
 	 */
 	public void selectEmpNo() {
-
-		Connection conn = null;
+		System.out.println("<주민번호 일치 사원 조회>");
 		
-		Statement stmt = null;
+		System.out.println("번호 입력 : ");
+		String empNO = sc.next();
 		
-		ResultSet rs = null;
+		Employee emp = dao.selectEmpNo(empNO);
 		
-		try {
-			
-			System.out.print("주민등록번호 입력 : ");
-			String inputempNo = sc.next();
-			
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			
-			String url = "jdbc:oracle:thin:@localhost:1521:XE";
-			String user = "kh";
-			String pw = "kh1234";
-			
-			conn = DriverManager.getConnection(url, user, pw);
-			
-			String sql = "SELECT EMP_ID, EMP_NAME, EMP_NO, PHONE, DEPT_CODE, JOB_CODE, SAL_LEVEL, SALARY, BONUS, MANAGER_ID, HIRE_DATE, ENT_DATE, ENT_YN"
-					+ " FROM EMPLOYEE"
-					+ " WHERE EMP_NO = '" + inputempNo + "'";
-			
-			stmt = conn.createStatement();
-			
-			rs = stmt.executeQuery(sql);
-			
-			while(rs.next()) {
-				
-				String empId = rs.getString("EMP_ID");
-				String empName= rs.getString("EMP_NAME");
-				String empNo = rs.getString("EMP_NO");
-				String phone = rs.getString("PHONE");
-				String deptcode = rs.getString("DEPT_CODE");
-				String jobcode = rs.getString("JOB_CODE");
-				String salLevel = rs.getString("SAL_LEVEL");
-				int salary = rs.getInt("SALARY");
-				int bonus = rs.getInt("BONUS");
-				String managerId = rs.getString("MANAGER_ID");
-				String hiredate = rs.getString("HIRE_DATE");
-				String entdate = rs.getString("ENT_DATE");
-				String entyn = rs.getString("ENT_YN");
-				
-				System.out.printf("사번 : %s / 이름 : %s / 주민번호 : %s / 전화번호 : %s / 부서코드 : %s / 직급 : %s / 급여단계 : %s /"
-						+ " 급여 : %d / 보너스 : %d / 사수번호 : %s / 입사일 : %s / 퇴사일 : %s / 퇴직여부 : %s\n",
-						empId, empName, empNo, phone, deptcode, jobcode, salLevel, salary, bonus, managerId, hiredate, entdate, entyn.toString() );
-			
-			}
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-			
-		} finally {
-			try {
-				if(rs !=null) rs.close();
-				if(stmt !=null) stmt.close();
-				if(conn !=null) conn.close();
-			} catch(SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		printOne(emp);
+		
 		
 	}
 	
@@ -332,6 +208,53 @@ public class EmployeeView {
 	 * 사원 정보 추가
 	 */
 	public void insertEmployee() {
+		System.out.println("<사원 정보 추가>");
+		
+		int empId = inputEmpId();
+		
+		System.out.println("이름 : ");
+		String empName = sc.next();
+		
+		System.out.println("사번 : ");
+		String empNo = sc.next();
+		
+		System.out.println("이메일 : ");
+		String email = sc.next();
+		
+		System.out.println("전화번호(-제외) : ");
+		String phone = sc.next();
+		
+		System.out.println("부서코드 : ");
+		String deptCode = sc.next();
+		
+		System.out.println("직급코드(j1~j7) : ");
+		String jobCode = sc.next();
+		
+		System.out.println("급여등급(S1~S6) : ");
+		String salLevel = sc.next();
+		
+		System.out.println("급여 : ");
+		int salary = sc.nextInt();
+		
+		System.out.println("보너스 : ");
+		double bonus = sc.nextDouble();
+		
+		System.out.println("사수번호 : ");
+		int managerId = sc.nextInt();
+		
+		//입력 받은 값을
+		//Employee 객체에 담아서 DAo로 전달
+		Employee emp = new Employee(empId, empName, empNo, email, phone, salary, deptCode, jobCode, salLevel, bonus, managerId);
+		
+		int result = dao.insertEmployee(emp);
+		// INSERT, UPDATE, DELECTE 같은 DML구문은
+		// 수행 후 테이블에 반영된 행의 개수를 반환함
+		
+		if(result > 0) {
+			System.out.println(" 사원 정보 추가 성공");
+		}else {
+			System.out.println(" 사원 정보 추가 실패");
+		}
 		
 	}
 	
@@ -340,6 +263,39 @@ public class EmployeeView {
 	 * 사번이 일치하는 사원 정보 수정(이메일, 전화번호, 급여)
 	 */
 	public void updateEmployee() {
+		System.out.println("<사번이 일치하는 사원 정보 수정>");
+		
+		int empId = inputEmpId(); // 사번 입력
+		
+		System.out.println("이메일");
+		String emailString = sc.next();
+		
+		System.out.println("전화번호(-제외) : ");
+		String phone = sc.next();
+		
+		System.out.println("급여 : ");
+		int salary = sc.nextInt();
+		
+		
+		//기본 생성ㄴ자로 객체 생성후 setter 이용 초기화
+		Employee emp = new Employee();
+		
+		emp.setEmpId(empId);
+		emp.setEmail(emailString);
+		emp.setPhone(phone);
+		emp.setSalary(salary);
+		
+		int result = dao.updateEmployee(emp);
+		
+		if(result > 0 ) {
+			System.out.println("정보 수정완료");
+			
+		}else {
+			System.out.println("일치하는 사원이 없음");
+		}
+		
+		
+		
 		
 	}
 	
@@ -347,6 +303,29 @@ public class EmployeeView {
 	 * 사번이 일치하는 사원 정보 삭제
 	 */
 	public void deleteEmployee() {
+		System.out.println("<사번이 일치하는 사원정보 삭제>");
+		
+		int empId = inputEmpId();
+		
+		System.out.println("정말 삭제 하시겠습니까 (Y/N)");
+		char input = sc.next().toUpperCase().charAt(0);
+		
+		if(input == 'Y') {
+			//삭제 수행하는 DAO 호출
+			
+			int result = dao.deleteEmployee(empId);
+			
+			if(result > 0) {
+				System.out.println("삭제되었습니다");
+			} else {
+				System.out.println("사번이 일치하는 사원이 존재하지 않음");
+			}
+			
+			
+		} else {
+			System.out.println("취소");
+		}
+		
 		
 	}
 	
@@ -355,14 +334,28 @@ public class EmployeeView {
 	 * 입력 받은 부서와 일치하는 모든 사원 정보 조회
 	 */
 	public void selectDeptEmp() {
-
+		System.out.println("<입력받은 사원 전부 조회>");
+		
+		System.out.println("부서명 : ");
+		String departmentTiltle = sc.nextLine();
+		
+		List<Employee> empList = dao.selectDeptEmp(departmentTiltle);
+		
+		printAll(empList);
 	}
 	
 	/**
 	 * 입력 받은 급여 이상을 받는 모든 사원 정보 조회
 	 */
 	public void selectSalaryEmp() {
+		System.out.println("<입력받은 급여 이상 사원 조회>");
 		
+		System.out.println("금액 입력 : ");
+		int salary = sc.nextInt();
+		
+		List<Employee> empList = dao.selectSalaryEmp(salary);
+		
+		printAll(empList);
 	}
 	
 	/**
