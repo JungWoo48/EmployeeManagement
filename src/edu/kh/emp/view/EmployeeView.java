@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.List;
+import java.util.Map;
 
 import edu.kh.emp.model.dao.EmployeeDAO;
 //import edu.kh.emp.model.dao.EmployeeDAO;
@@ -145,10 +146,12 @@ public class EmployeeView {
 	public void selectEmpId() {
 		System.out.println("<사번이 일치하는 사원 조회>");
 		
-		System.out.println("번호 입력 : ");
-		String empId = sc.next();
+		//System.out.println("번호 입력 : ");
+		//String empId = sc.next();
 		
-		Employee emp = dao.selectEmpNo(empId);
+		int empId = inputEmpId();
+		
+		Employee emp = dao.selectEmpId(empId);
 		
 		printOne(emp);
 		
@@ -362,13 +365,31 @@ public class EmployeeView {
 	 * 부서별 급여 합 전체 조회
 	 */
 	public void selectDeptTotalSalary() {
+		System.out.println("<부서별 급여 합 전체 조회>");
 		
+		Map<String, Integer> map = dao.selectDeptTotalSalary();
+		
+		for(String Key : map.keySet() ) {
+			Object value = map.get(Key);
+			System.out.println(Key + " : " + value + "원");
+			
+		}
 	}
 	
 	/**
 	 * 직급별 급여 평균 조회
 	 */
 	public void selectJobAvgSalary() {
+		System.out.println("<직급별 급여 평균 조회>");
+		
+		Map<String, Integer> map = dao.selectJobAvgSalary();
+		
+		for(String Key : map.keySet() ) {
+			Object value = map.get(Key);
+			System.out.println(Key + " : " + value + "원");
+			
+		
+		}
 		
 		
 	}
